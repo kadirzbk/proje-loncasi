@@ -1,13 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { setRole } from "@/lib/actions";
+import { setRole, starterQuests } from "@/lib/actions";
 import { castleLevel, memberLevel, ROLE_INFO } from "@/lib/engine";
 import { useGame } from "@/lib/store";
 import type { RoleClass } from "@/lib/types";
 
 export default function Karargah() {
-  const { state, run } = useGame();
+  const { state, run, mode } = useGame();
   const g = state.guild;
   const lvl = castleLevel(g);
   const me = state.members.find((m) => m.id === state.currentUserId)!;
@@ -28,7 +28,15 @@ export default function Karargah() {
           <div className="mt-8 flex flex-wrap gap-3">
             <Link href="/pano" className="btn btn-solid">Görev panosuna git</Link>
             <Link href="/kale" className="btn">Kaleyi gör</Link>
+            {state.quests.length === 0 && (
+              <button className="btn" onClick={() => run((s) => starterQuests(s))}>Başlangıç görevlerini ekle</button>
+            )}
           </div>
+          {mode === "remote" && g.inviteCode && (
+            <p className="mt-6 text-[13px] text-paper-dim">
+              Arkadaşlarını davet et, kod: <span className="num select-all border border-line bg-ink-2 px-2 py-1 text-paper">{g.inviteCode}</span>
+            </p>
+          )}
         </div>
         <dl className="grid grid-cols-2 gap-px border border-line bg-line">
           {[

@@ -14,7 +14,7 @@ export interface ActionResult {
   tone?: "good" | "bad" | "info";
 }
 
-const uid = () => Math.random().toString(36).slice(2, 9);
+const uid = () => crypto.randomUUID();
 
 function log(s: GameState, text: string): GameState {
   return {
@@ -94,7 +94,7 @@ export function addQuest(
 ): ActionResult {
   const n = s.quests.length + 1;
   const quest: Quest = {
-    id: "q" + uid(),
+    id: uid(),
     code: `PG-${n}`,
     status: "BACKLOG",
     focusMinutes: 0,
@@ -122,7 +122,7 @@ export function addVersion(
     status: q.status === "BACKLOG" ? "IN_PROGRESS" : q.status,
     versions: [
       ...q.versions,
-      { n: q.versions.length + 1, imageUrl, note, createdAt: new Date().toISOString(), pins: [] },
+      { id: uid(), n: q.versions.length + 1, imageUrl, note, createdAt: new Date().toISOString(), pins: [] },
     ],
   }));
   return { state: next, tone: "info", message: "Yeni versiyon yüklendi." };
@@ -293,4 +293,40 @@ export function repair(s: GameState): ActionResult {
 export function blueprintLabel(q: Quest, all: Quest[]): string | null {
   if (!q.prerequisiteId) return null;
   return blueprintActive(q, all) ? "Plan Bonusu açık +%25" : "Plan bekleniyor";
+}
+
+/** Boş bir loncaya ilk görevleri ekler. */
+export function starterQuests(s: GameState): ActionResult {
+  const defs: {
+    title: string;
+    description: string;
+    type: QuestType;
+    role: RoleClass;
+    points: Quest["points"];
+  }[] = [
+    { title: "Giriş sayfası tasarımı", description: "Karşılama ekranının görsel dili.", type: "DESIGN", role: "ARCHITECT", points: 5 },
+    { title: "Giriş sayfası arayüzü", description: "Tasarımın koda dökülmesi.", type: "CODE", role: "RANGER", points: 3 },
+    { title: "Veritabanı şeması", description: "Tablolar ve güvenlik kuralları.", type: "CODE", role: "BLACKSMITH", points: 5 },
+    { title: "Kullanıcı testi planı", description: "Sınıfta yapılacak test senaryoları.", type: "QA_DOCS", role: "SCOUT", points: 2 },
+  ];
+  const start = s.quests.length;
+  const designId = uid();
+  const quests: Quest[] = defs.map((d, i) => ({
+    ...d,
+    id: i === 0 ? designId : uid(),
+    code: `PG-${start + i + 1}`,
+    status: "BACKLOG",
+    assigneeId: null,
+    prerequisiteId: i === 1 ? designId : null,
+    focusMinutes: 0,
+    versions: [],
+    submission: null,
+    approvals: [],
+    rewarded: false,
+  }));
+  return {
+    state: log({ ...s, quests: [...s.quests, ...quests] }, "Başlangıç görevleri ilan panosuna eklendi."),
+    tone: "info",
+    message: "4 başlangıç görevi eklendi.",
+  };
 }

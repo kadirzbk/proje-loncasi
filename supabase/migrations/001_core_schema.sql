@@ -1,6 +1,3 @@
--- Proje Loncası: Supabase (PostgreSQL) şeması.
--- Supabase panelinde SQL Editor'e yapıştırıp çalıştır.
-
 create type role_class as enum ('ARCHITECT', 'BLACKSMITH', 'RANGER', 'SCOUT');
 create type quest_type as enum ('CODE', 'DESIGN', 'QA_DOCS');
 create type quest_status as enum ('BACKLOG', 'IN_PROGRESS', 'IN_REVIEW', 'DONE');
@@ -50,7 +47,7 @@ create table design_versions (
   id uuid primary key default gen_random_uuid(),
   quest_id uuid not null references quests on delete cascade,
   version_number int not null,
-  file_path text not null,            -- Supabase Storage yolu
+  file_path text not null,
   note text not null default '',
   created_at timestamptz not null default now(),
   unique (quest_id, version_number)
@@ -84,25 +81,36 @@ create table approvals (
   primary key (quest_id, reviewer_id)
 );
 
+create index on quests (guild_id);
+create index on design_versions (quest_id);
+create index on design_pins (version_id);
+create index on members (guild_id);
+
 -- Kural: kendi teslimatını onaylayamazsın.
-create or replace function forbid_self_approval() returns trigger as $$
+create or replace function forbid_self_approval() returns trigger
+language plpgsql
+set search_path = public
+as $$
 begin
   if exists (select 1 from quests where id = new.quest_id and assignee_id = new.reviewer_id) then
     raise exception 'Kendi teslimatını onaylayamazsın';
   end if;
   return new;
 end;
-$$ language plpgsql;
+$$;
 
 create trigger approvals_no_self
   before insert or update on approvals
   for each row execute function forbid_self_approval();
 
--- Satır güvenliği: sadece kendi loncanın verisini görürsün.
-create or replace function my_guild() returns uuid as $$
+create or replace function my_guild() returns uuid
+language sql stable security definer
+set search_path = public
+as $$
   select guild_id from members where user_id = auth.uid()
-$$ language sql stable security definer;
+$$;
 
+-- Satır güvenliği: sadece kendi loncanın verisini görürsün.
 alter table guilds enable row level security;
 alter table members enable row level security;
 alter table quests enable row level security;
@@ -111,16 +119,23 @@ alter table design_pins enable row level security;
 alter table code_submissions enable row level security;
 alter table approvals enable row level security;
 
-create policy guild_read on guilds for select using (id = my_guild());
-create policy guild_write on guilds for update using (id = my_guild());
-create policy members_read on members for select using (guild_id = my_guild() or user_id = auth.uid());
-create policy members_self on members for all using (user_id = auth.uid());
-create policy quests_all on quests for all using (guild_id = my_guild());
-create policy versions_all on design_versions for all
-  using (quest_id in (select id from quests where guild_id = my_guild()));
-create policy pins_all on design_pins for all
-  using (version_id in (select v.id from design_versions v join quests q on q.id = v.quest_id where q.guild_id = my_guild()));
-create policy submissions_all on code_submissions for all
-  using (quest_id in (select id from quests where guild_id = my_guild()));
-create policy approvals_all on approvals for all
-  using (quest_id in (select id from quests where guild_id = my_guild()));
+create policy guild_read on guilds for select to authenticated using (id = (select my_guild()));
+create policy guild_write on guilds for update to authenticated using (id = (select my_guild()));
+create policy members_read on members for select to authenticated
+  using (guild_id = (select my_guild()) or user_id = (select auth.uid()));
+create policy members_self on members for all to authenticated
+  using (user_id = (select auth.uid())) with check (user_id = (select auth.uid()));
+create policy quests_all on quests for all to authenticated
+  using (guild_id = (select my_guild())) with check (guild_id = (select my_guild()));
+create policy versions_all on design_versions for all to authenticated
+  using (quest_id in (select id from quests where guild_id = (select my_guild())))
+  with check (quest_id in (select id from quests where guild_id = (select my_guild())));
+create policy pins_all on design_pins for all to authenticated
+  using (version_id in (select v.id from design_versions v join quests q on q.id = v.quest_id where q.guild_id = (select my_guild())))
+  with check (version_id in (select v.id from design_versions v join quests q on q.id = v.quest_id where q.guild_id = (select my_guild())));
+create policy submissions_all on code_submissions for all to authenticated
+  using (quest_id in (select id from quests where guild_id = (select my_guild())))
+  with check (quest_id in (select id from quests where guild_id = (select my_guild())));
+create policy approvals_all on approvals for all to authenticated
+  using (quest_id in (select id from quests where guild_id = (select my_guild())))
+  with check (quest_id in (select id from quests where guild_id = (select my_guild())));

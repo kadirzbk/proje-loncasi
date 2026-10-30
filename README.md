@@ -13,8 +13,10 @@ npm run dev     # http://localhost:3000
 ## Şu anki durum
 
 - Next.js (App Router) + TypeScript + Tailwind.
-- Oyun durumu tarayıcıda (localStorage) tutulur, demo verisiyle açılır. Menüdeki "Demo verisini sıfırla" ile başa döner.
-- `supabase/schema.sql` hazır, ama uygulama henüz Supabase'e bağlı değil.
+- **Demo modu:** `.env.local` yoksa oyun durumu tarayıcıda (localStorage) tutulur, örnek veriyle açılır.
+- **Supabase modu:** `.env.example` içindeki iki değeri `.env.local` olarak kaydedersen e-posta ile giriş, lonca kurma/davet koduyla katılma, görevler, tasarım versiyonları (Storage) ve pinler Supabase'e yazılır. Pano 12 saniyede bir yenilenir.
+- Şema ve güvenlik kuralları `supabase/migrations` içinde; `proje-loncasi` Supabase projesine uygulandı.
+- Supabase panelinde Authentication > Providers > Email bölümünde **Confirm email** kapatılırsa kayıt olan hemen girebilir (sınıf testi için kolaylık).
 
 ## Dosya haritası
 
@@ -29,6 +31,6 @@ npm run dev     # http://localhost:3000
 
 ## Sıradaki işler
 
-1. Supabase bağlantısı (Auth, tablolar, Storage) ve çok kullanıcılı canlı pano.
+1. Supabase bağlantısının canlı testi (kod yazıldı, sunucu tarafı kuralları SQL ile doğrulandı).
 2. Gerçek GitHub webhook'u (`/api/webhooks/github`).
 3. Sezon sonu portföy ve sertifika sayfası.

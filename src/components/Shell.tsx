@@ -6,6 +6,7 @@ import type { ReactNode } from "react";
 import { useGame } from "@/lib/store";
 import { ROLE_INFO } from "@/lib/engine";
 import { switchUser } from "@/lib/actions";
+import { AuthGate } from "./AuthGate";
 
 const NAV = [
   { href: "/", label: "Karargah" },
@@ -16,8 +17,9 @@ const NAV = [
 
 export function Shell({ children }: { children: ReactNode }) {
   const path = usePathname();
-  const { state, run, reset, toast } = useGame();
-  const me = state.members.find((m) => m.id === state.currentUserId)!;
+  const { state, run, reset, toast, mode, phase, email, signOut } = useGame();
+  const me = state.members.find((m) => m.id === state.currentUserId) ?? state.members[0];
+  const gated = mode === "remote" && phase !== "ready";
 
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-[1280px] flex-col px-4 sm:px-8">
@@ -25,7 +27,7 @@ export function Shell({ children }: { children: ReactNode }) {
         <Link href="/" className="display text-[26px] italic leading-none text-paper">
           Proje Loncası
         </Link>
-        <nav className="order-3 -mb-3 flex w-full gap-6 overflow-x-auto sm:order-none sm:w-auto" aria-label="Ana gezinme">
+        <nav hidden={gated} className="order-3 -mb-3 flex w-full gap-6 overflow-x-auto sm:order-none sm:w-auto" aria-label="Ana gezinme">
           {NAV.map((n) => {
             const active = n.href === "/" ? path === "/" : path.startsWith(n.href);
             return (
@@ -44,34 +46,43 @@ export function Shell({ children }: { children: ReactNode }) {
             );
           })}
         </nav>
-        <div className="flex items-center gap-3">
-          <label className="eyebrow" htmlFor="who">
-            Oynayan
-          </label>
-          <select
-            id="who"
-            className="field !w-auto !py-1.5 text-[13px]"
-            value={state.currentUserId}
-            onChange={(e) => run((s) => switchUser(s, e.target.value))}
-          >
-            {state.members.map((m) => (
-              <option key={m.id} value={m.id}>
-                {m.name} · {ROLE_INFO[m.role].name}
-              </option>
-            ))}
-          </select>
-        </div>
+        {gated ? null : mode === "remote" ? (
+          <div className="flex items-center gap-3">
+            <span className="eyebrow">{me?.name} · {email}</span>
+            <button className="btn !py-1.5 text-[12px]" onClick={signOut}>Çıkış</button>
+          </div>
+        ) : (
+          <div className="flex items-center gap-3">
+            <label className="eyebrow" htmlFor="who">
+              Oynayan
+            </label>
+            <select
+              id="who"
+              className="field !w-auto !py-1.5 text-[13px]"
+              value={state.currentUserId}
+              onChange={(e) => run((s) => switchUser(s, e.target.value))}
+            >
+              {state.members.map((m) => (
+                <option key={m.id} value={m.id}>
+                  {m.name} · {ROLE_INFO[m.role].name}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
       </header>
 
-      <main className="flex-1 py-8">{children}</main>
+      <main className="flex-1 py-8">{gated ? <AuthGate /> : children}</main>
 
       <footer className="flex flex-wrap items-center justify-between gap-3 border-t border-line py-4">
         <p className="eyebrow">
-          DOT407 Oyunlaştırma · DOT403 Web Programlama · {me.name} olarak giriş yapıldı
+          DOT407 Oyunlaştırma · DOT403 Web Programlama{me ? ` · ${me.name} olarak giriş yapıldı` : ""}
         </p>
-        <button className="btn !py-1.5 text-[12px]" onClick={reset}>
-          Demo verisini sıfırla
-        </button>
+        {mode === "local" && (
+          <button className="btn !py-1.5 text-[12px]" onClick={reset}>
+            Demo verisini sıfırla
+          </button>
+        )}
       </footer>
 
       <div aria-live="polite" className="pointer-events-none fixed inset-x-0 bottom-6 z-50 flex justify-center px-4">

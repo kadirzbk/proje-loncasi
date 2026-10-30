@@ -77,6 +77,7 @@ export function seedState(): GameState {
         focusMinutes: 50,
         versions: [
           {
+            id: "v-q1-1",
             n: 1,
             imageUrl: mockScreen(1),
             note: "İlk taslak: başlık ve buton yerleşimi",
@@ -84,6 +85,7 @@ export function seedState(): GameState {
             pins: [],
           },
           {
+            id: "v-q1-2",
             n: 2,
             imageUrl: mockScreen(2),
             note: "Kontrast artırıldı, arma eklendi, buton daha belirgin",

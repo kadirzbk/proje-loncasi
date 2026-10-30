@@ -19,6 +19,7 @@ export interface DesignPin {
 }
 
 export interface DesignVersion {
+  id: string;
   n: number;
   imageUrl: string;
   note: string;
@@ -65,6 +66,8 @@ export interface Resources {
 }
 
 export interface Guild {
+  id?: string;
+  inviteCode?: string;
   name: string;
   resources: Resources;
   hp: number;
