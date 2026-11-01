@@ -129,33 +129,58 @@ export function GameProvider({ children }: { children: ReactNode }) {
     return () => sub.subscription.unsubscribe();
   }, [load]);
 
-  // Arkadaşlarının değişikliklerini görmek için düzenli yenile.
+  // Arkadaşlarının değişikliklerini çeker. Kendi yazmamız sürerken eski veriyle ezmemek için bekler.
+  const refresh = useCallback(async (uid: string): Promise<void> => {
+    if (!supabase || document.hidden) return;
+    for (let i = 0; i < 10 && inflight.current > 0; i++) {
+      await new Promise((r) => setTimeout(r, 400));
+    }
+    if (inflight.current > 0) return;
+    try {
+      const s = await fetchState(supabase, uid);
+      if (s && inflight.current === 0) {
+        // İmzalı görsel bağlantıları her çekişte değişir, defter yerel; yalnızca içerik değiştiyse yenile.
+        const strip = (g: GameState) =>
+          JSON.stringify({
+            ...g,
+            log: [],
+            quests: g.quests.map((q) => ({ ...q, versions: q.versions.map((v) => ({ ...v, imageUrl: "" })) })),
+          });
+        if (strip(s) !== strip(ref.current)) {
+          ref.current = s;
+          setState(s);
+        }
+      }
+    } catch {
+      /* ağ sorunu: bir sonraki turda tekrar dene */
+    }
+  }, []);
+
+  // Anlık güncelleme (Supabase Realtime). Satır güvenliği sayesinde yalnızca kendi loncanın değişiklikleri gelir.
+  // 12 saniyelik yenileme, bağlantı koparsa diye yedek olarak kalır.
   useEffect(() => {
     if (!supabase || phase !== "ready" || !session) return;
     const uid = session.user.id;
-    const refresh = async () => {
-      if (inflight.current > 0 || document.hidden || !supabase) return;
-      try {
-        const s = await fetchState(supabase, uid);
-        if (s && inflight.current === 0) {
-          const strip = (g: GameState) => JSON.stringify({ ...g, log: [], quests: g.quests.map((q) => ({ ...q, versions: q.versions.map((v) => ({ ...v, imageUrl: "" })) })) });
-          if (strip(s) !== strip(ref.current)) {
-            // imzalı bağlantılar her çekişte değişir; yalnızca içerik değiştiyse yenile
-            ref.current = s;
-            setState(s);
-          }
-        }
-      } catch {
-        /* ağ sorunu: bir sonraki turda tekrar dene */
-      }
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const soon = () => {
+      clearTimeout(timer);
+      timer = setTimeout(() => refresh(uid), 400);
     };
-    const t = setInterval(refresh, 12000);
-    document.addEventListener("visibilitychange", refresh);
+    const channel = supabase.channel(`lonca-${uid}`);
+    for (const table of ["quests", "approvals", "design_versions", "design_pins", "code_submissions", "guilds", "members"]) {
+      channel.on("postgres_changes", { event: "*", schema: "public", table }, soon);
+    }
+    channel.subscribe();
+    const poll = setInterval(() => refresh(uid), 12000);
+    const onVisible = () => refresh(uid);
+    document.addEventListener("visibilitychange", onVisible);
     return () => {
-      clearInterval(t);
-      document.removeEventListener("visibilitychange", refresh);
+      clearTimeout(timer);
+      clearInterval(poll);
+      document.removeEventListener("visibilitychange", onVisible);
+      supabase?.removeChannel(channel);
     };
-  }, [phase, session]);
+  }, [phase, session, refresh]);
 
   useEffect(() => {
     if (!toast) return;

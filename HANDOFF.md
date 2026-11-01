@@ -87,7 +87,7 @@ Hâlâ eksik, öncelik sırasıyla:
 3. **Klasik oyunlaştırma öğeleri yok:** rozet, seri (streak), liderlik tablosu. Oyunlaştırma dersi için en ucuz ve en görünür kazanım bunlar.
 4. Odak süresi sayfada tutuluyor, sekme kapanınca kayboluyor ama bonus veriyor. Ya veritabanına yazılmalı ya da bonus düşürülmeli.
 5. Lonca defteri Supabase'de kalıcı değil. Basit bir olay tablosu yeter.
-6. Gerçek zamanlı değil (12 saniyede bir yenileme), bildirim yok.
+6. ~~Gerçek zamanlı değil.~~ Supabase Realtime eklendi (migration 005, `store.tsx`): başka üyenin değişikliği ~0,5 sn içinde gelir, 12 sn yoklama yedek olarak duruyor. Bildirim hâlâ yok.
 7. Kart düzenleme ve silme yok. Yanlış yüklenen versiyonu geri alma yok. Gözcü (QA) kartlarında teslimat alanı yok, sadece onay var.
 8. Denge ayarı yapılmadı: kale eşikleri (0/60/160/320) ve XP formülü 2 kişilik ekiple denenmedi.
 
