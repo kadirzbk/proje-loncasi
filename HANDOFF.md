@@ -73,6 +73,10 @@ Panelde yapılması gereken: Authentication > Providers > Email > **Confirm emai
 - `npm run lint` ve `npx tsc --noEmit` temiz olmalı.
 - Yapay zeka destekli geliştirme serbest. Bu depodaki kodun büyük kısmı Claude ile yazıldı.
 
+## Lonca ağı (2026-11-01)
+
+Sistem tek takımlık panodan profil, ilan, başvuru ve portfolyo içeren bir ağa dönüştü. Ayrıntı: [docs/SOSYAL-AG.md](docs/SOSYAL-AG.md). Veritabanı değişikliği `supabase/migrations/006_social_network.sql` ve `007_fix_guard_and_handles.sql` (ikisi de Supabase projesine uygulandı, 2026-11-01). Güvenlik kuralları iki gerçek hesapla, geri alınan bir işlem içinde denendi: çift başvuru, kendi başvurusunu kabul, kendi kartını onaylama, üyenin rütbe/ayar değiştirmesi engelleniyor; kart bitince katkı yazılıyor; giriş yapmamış kişi kart göremiyor. Mevcut kullanıcılar profile, mevcut lonca yeni yapıya taşınır (ilk kayıt olan kurucu, diğeri yönetici olur).
+
 ## İnceleme notları (2026-11-01)
 
 Düzeltilenler:

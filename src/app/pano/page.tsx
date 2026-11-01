@@ -1,5 +1,6 @@
 "use client";
 
+import { RequireGuild } from "@/components/social-ui";
 import { useState } from "react";
 import { addQuest, moveQuest } from "@/lib/actions";
 import { blueprintActive, openPins, ROLE_INFO, STATUS_LABEL, TYPE_LABEL } from "@/lib/engine";
@@ -15,7 +16,7 @@ const NEXT: Record<QuestStatus, QuestStatus | null> = {
   DONE: null,
 };
 
-export default function Board() {
+function BoardInner() {
   const { state, run } = useGame();
   const [open, setOpen] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
@@ -188,5 +189,13 @@ function NewQuest({ onClose }: { onClose: () => void }) {
         </div>
       </form>
     </div>
+  );
+}
+
+export default function Board() {
+  return (
+    <RequireGuild>
+      <BoardInner />
+    </RequireGuild>
   );
 }

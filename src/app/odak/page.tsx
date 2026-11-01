@@ -1,5 +1,6 @@
 "use client";
 
+import { RequireGuild } from "@/components/social-ui";
 import { useEffect, useRef, useState } from "react";
 import { addFocus } from "@/lib/actions";
 import { useGame } from "@/lib/store";
@@ -10,7 +11,7 @@ const PRESETS = [
   { label: "15 sn demo (1 dk sayılır)", sec: 15, minutes: 1 },
 ];
 
-export default function OdakPage() {
+function OdakPageInner() {
   const { state, run } = useGame();
   const active = state.quests.filter((q) => q.status === "IN_PROGRESS");
   const [questId, setQuestId] = useState<string>("");
@@ -107,5 +108,13 @@ export default function OdakPage() {
         </p>
       )}
     </div>
+  );
+}
+
+export default function OdakPage() {
+  return (
+    <RequireGuild>
+      <OdakPageInner />
+    </RequireGuild>
   );
 }

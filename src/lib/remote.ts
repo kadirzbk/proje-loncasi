@@ -8,13 +8,18 @@ import type {
   Guild,
   Member,
   Quest,
+  Rank,
   RoleClass,
 } from "./types";
 
 interface GuildRow {
   id: string;
   name: string;
-  invite_code: string;
+  slug: string;
+  tagline: string;
+  description: string;
+  visibility: "public" | "private";
+  recruiting: boolean;
   stone: number;
   wood: number;
   mortar: number;
@@ -26,10 +31,10 @@ interface GuildRow {
 }
 interface MemberRow {
   user_id: string;
-  guild_id: string | null;
-  display_name: string;
   role: RoleClass;
   xp: number;
+  rank: Rank;
+  profiles: { handle: string; display_name: string } | null;
 }
 interface QuestRow {
   id: string;
@@ -44,6 +49,7 @@ interface QuestRow {
   prerequisite_id: string | null;
   focus_minutes: number;
   rewarded: boolean;
+  reward_xp: number;
 }
 interface VersionRow {
   id: string;
@@ -80,7 +86,11 @@ interface ApprovalRow {
 function guildFromRow(g: GuildRow): Guild {
   return {
     id: g.id,
-    inviteCode: g.invite_code,
+    slug: g.slug,
+    tagline: g.tagline,
+    description: g.description,
+    visibility: g.visibility,
+    recruiting: g.recruiting,
     name: g.name,
     resources: { stone: g.stone, wood: g.wood, mortar: g.mortar },
     hp: g.hp,
@@ -95,21 +105,22 @@ function fail(label: string, error: { message: string } | null): void {
   if (error) throw new Error(`${label}: ${error.message}`);
 }
 
-/** Kullanıcının loncasını ve tüm verisini çeker. Loncası yoksa null döner. */
-export async function fetchState(sb: SupabaseClient, uid: string): Promise<GameState | null> {
-  const me = await sb.from("members").select("*").eq("user_id", uid).maybeSingle<MemberRow>();
-  fail("üye", me.error);
-  if (!me.data?.guild_id) return null;
-  const gid = me.data.guild_id;
-
+/** Seçili loncanın tüm oyun verisini çeker. Üye değilse null döner. */
+export async function fetchState(sb: SupabaseClient, uid: string, gid: string): Promise<GameState | null> {
   const [g, ms, qs] = await Promise.all([
-    sb.from("guilds").select("*").eq("id", gid).single<GuildRow>(),
-    sb.from("members").select("*").eq("guild_id", gid).returns<MemberRow[]>(),
+    sb.from("guilds").select("*").eq("id", gid).maybeSingle<GuildRow>(),
+    sb
+      .from("members")
+      .select("user_id, role, xp, rank, joined_at, profiles(handle, display_name)")
+      .eq("guild_id", gid)
+      .order("joined_at")
+      .returns<MemberRow[]>(),
     sb.from("quests").select("*").eq("guild_id", gid).order("created_at").returns<QuestRow[]>(),
   ]);
   fail("lonca", g.error);
   fail("üyeler", ms.error);
   fail("görevler", qs.error);
+  if (!g.data || !(ms.data ?? []).some((m) => m.user_id === uid)) return null;
 
   const qrows = qs.data ?? [];
   const qids = qrows.map((q) => q.id);
@@ -153,9 +164,11 @@ export async function fetchState(sb: SupabaseClient, uid: string): Promise<GameS
 
   const members: Member[] = (ms.data ?? []).map((m) => ({
     id: m.user_id,
-    name: m.display_name,
+    name: m.profiles?.display_name ?? "?",
+    handle: m.profiles?.handle,
     role: m.role,
     xp: m.xp,
+    rank: m.rank,
   }));
 
   const quests: Quest[] = qrows.map((q) => {
@@ -206,6 +219,7 @@ export async function fetchState(sb: SupabaseClient, uid: string): Promise<GameS
         .filter((a) => a.quest_id === q.id)
         .map((a) => ({ reviewerId: a.reviewer_id, status: a.status, comment: a.comment })),
       rewarded: q.rewarded,
+      rewardXp: q.reward_xp,
     };
   });
 
@@ -233,6 +247,7 @@ function questRow(q: Quest, guildId: string) {
     prerequisite_id: q.prerequisiteId,
     focus_minutes: q.focusMinutes,
     rewarded: q.rewarded,
+    reward_xp: q.rewardXp ?? 0,
   };
 }
 
@@ -277,7 +292,7 @@ export async function pushDiff(
   for (const m of next.members) {
     const old = prev.members.find((x) => x.id === m.id);
     if (old && old.xp === m.xp && old.role === m.role) continue;
-    const r = await sb.from("members").update({ xp: m.xp, role: m.role }).eq("user_id", m.id);
+    const r = await sb.from("members").update({ xp: m.xp, role: m.role }).eq("guild_id", gid).eq("user_id", m.id);
     fail("üye kaydı", r.error);
   }
 
@@ -353,14 +368,4 @@ export async function pushDiff(
       fail("onay kaydı", r.error);
     }
   }
-}
-
-export async function createGuild(sb: SupabaseClient, guildName: string, memberName: string, role: RoleClass) {
-  const r = await sb.rpc("create_guild", { guild_name: guildName, member_name: memberName, member_role: role });
-  fail("lonca kurulamadı", r.error);
-}
-
-export async function joinGuild(sb: SupabaseClient, code: string, memberName: string, role: RoleClass) {
-  const r = await sb.rpc("join_guild", { code: code.trim(), member_name: memberName, member_role: role });
-  fail("loncaya katılınamadı", r.error);
 }

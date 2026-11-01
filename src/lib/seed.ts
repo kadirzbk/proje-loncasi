@@ -48,6 +48,13 @@ export function seedState(): GameState {
   return {
     currentUserId: "u1",
     guild: {
+      id: "g-local",
+      slug: "kizil-sancak",
+      tagline: "DOT407 + DOT403 ortak projesi: oyunlaştırılmış proje yönetimi.",
+      description:
+        "Kod, tasarım ve test görevlerini tek panoda topluyoruz. Biten her kart kaleyi büyütüyor. Ön yüz ve görsel tarafta yardım arıyoruz.",
+      visibility: "public",
+      recruiting: true,
       name: "Kızıl Sancak Loncası",
       resources: { stone: 14, wood: 22, mortar: 6 },
       hp: 60,
@@ -57,10 +64,10 @@ export function seedState(): GameState {
       siegesLost: 0,
     },
     members: [
-      { id: "u1", name: "Abdülkadir", role: "RANGER", xp: 85 },
-      { id: "u2", name: "Fikri", role: "ARCHITECT", xp: 140 },
-      { id: "u3", name: "Selin", role: "BLACKSMITH", xp: 60 },
-      { id: "u4", name: "Deniz", role: "SCOUT", xp: 45 },
+      { id: "u1", name: "Abdülkadir", role: "RANGER", xp: 85, rank: "owner" },
+      { id: "u2", name: "Fikri", role: "ARCHITECT", xp: 140, rank: "officer" },
+      { id: "u3", name: "Selin", role: "BLACKSMITH", xp: 60, rank: "member" },
+      { id: "u4", name: "Deniz", role: "SCOUT", xp: 45, rank: "member" },
     ],
     quests: [
       q({
@@ -174,6 +181,8 @@ export function seedState(): GameState {
         status: "DONE",
         assigneeId: "u3",
         rewarded: true,
+        rewardXp: 60,
+        completedAt: "2026-10-24T15:20:00.000Z",
         submission: {
           branch: "feat/PG-6-schema",
           prNumber: 4,
