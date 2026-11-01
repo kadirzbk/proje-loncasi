@@ -200,13 +200,15 @@ export function GameProvider({ children }: { children: ReactNode }) {
         const { data, error } = await supabase.auth.signUp({ email, password });
         if (error) return error.message;
         if (!data.session) return "Kayıt oluştu. E-postana gelen doğrulama bağlantısına tıkla, sonra giriş yap.";
+        await load(data.session.user.id);
         return null;
       }
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) return error.message === "Invalid login credentials" ? "E-posta ya da şifre hatalı." : error.message;
+      await load(data.user.id);
       return null;
     },
-    [],
+    [load],
   );
 
   const signOut = useCallback(async () => {

@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import { addPin, addVersion, togglePin } from "@/lib/actions";
+import { isRemote } from "@/lib/supabase";
 import { useGame } from "@/lib/store";
 import type { Quest } from "@/lib/types";
 
@@ -33,8 +34,9 @@ export function DesignStudio({ quest }: { quest: Quest }) {
 
   function onUpload(file: File | undefined) {
     if (!file) return;
-    if (file.size > 900_000) {
-      run((s) => ({ state: s, tone: "bad", message: "Görsel 900 KB'den küçük olmalı (demo depolaması)." }));
+    const maxBytes = isRemote ? 4_000_000 : 900_000;
+    if (file.size > maxBytes) {
+      run((s) => ({ state: s, tone: "bad", message: `Görsel ${isRemote ? "4 MB" : "900 KB"}'den küçük olmalı.` }));
       return;
     }
     const reader = new FileReader();
@@ -64,6 +66,16 @@ export function DesignStudio({ quest }: { quest: Quest }) {
     setDraft(null);
     setText("");
   }
+
+  const uploader = (
+    <div className="flex flex-wrap gap-2">
+      <input className="field flex-1" placeholder="Değişiklik notu (commit mesajı gibi)" value={note} onChange={(e) => setNote(e.target.value)} />
+      <input ref={fileRef} type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" className="sr-only" id={`up-${quest.id}`} onChange={(e) => onUpload(e.target.files?.[0])} />
+      <label htmlFor={`up-${quest.id}`} className="btn btn-solid cursor-pointer">
+        Görsel seç
+      </label>
+    </div>
+  );
 
   return (
     <section aria-label="Tasarım Stüdyosu" className="space-y-5">
@@ -106,10 +118,11 @@ export function DesignStudio({ quest }: { quest: Quest }) {
       </div>
 
       {versions.length === 0 ? (
-        <div className="grid aspect-[8/5] place-items-center border border-dashed border-line text-center text-paper-dim">
-          <p className="max-w-xs text-[14px]">
-            Henüz versiyon yok. İlk görseli yükle; sonraki her yükleme bir öncekiyle karşılaştırılabilir.
+        <div className="space-y-4 border border-dashed border-line p-6">
+          <p className="text-[14px] text-paper-dim">
+            Henüz versiyon yok. Tasarımının görselini (PNG, JPG, WebP ya da SVG) buradan yükle. Sonraki her yükleme bir öncekiyle karşılaştırılabilir.
           </p>
+          {uploader}
         </div>
       ) : (
         <div
@@ -242,16 +255,12 @@ export function DesignStudio({ quest }: { quest: Quest }) {
         </div>
       )}
 
-      <div className="border-t border-line pt-4">
-        <h4 className="eyebrow mb-2">Yeni versiyon yükle</h4>
-        <div className="flex flex-wrap gap-2">
-          <input className="field flex-1" placeholder="Değişiklik notu (commit mesajı gibi)" value={note} onChange={(e) => setNote(e.target.value)} />
-          <input ref={fileRef} type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" className="sr-only" id={`up-${quest.id}`} onChange={(e) => onUpload(e.target.files?.[0])} />
-          <label htmlFor={`up-${quest.id}`} className="btn btn-solid cursor-pointer">
-            Görsel seç
-          </label>
+      {versions.length > 0 && (
+        <div className="border-t border-line pt-4">
+          <h4 className="eyebrow mb-2">Yeni versiyon yükle</h4>
+          {uploader}
         </div>
-      </div>
+      )}
     </section>
   );
 }
