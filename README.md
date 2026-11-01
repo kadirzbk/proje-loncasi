@@ -3,6 +3,8 @@
 Kod ve tasarım görevlerini bir kale savunması oyununa çeviren takım platformu.
 DOT407 Oyunlaştırma Uygulamaları + DOT403 Web Programlama ortak projesi.
 
+Devralan kişi için önce [HANDOFF.md](HANDOFF.md) dosyasına bak.
+
 ## Çalıştırma
 
 ```bash
