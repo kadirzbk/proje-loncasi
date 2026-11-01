@@ -58,7 +58,7 @@ Panelde yapılması gereken: Authentication > Providers > Email > **Confirm emai
 5. Odak oturumu sayfada tutuluyor, sekme kapanırsa kaybolur.
 6. 3D model önizleme yapılmadı, bilerek MVP dışında bırakıldı.
 7. Lonca defteri Supabase modunda sayfa yenilenince boşalır (kayıt tablosu yok).
-8. Pano ve tasarım görselleri telefonda denendi, ama tasarım stüdyosunda pin koymak dokunmatikte henüz elle test edilmedi.
+8. Pano telefon genişliğinde denendi. Tasarım stüdyosu (pin koyma, çubuk sürükleme) telefonda ve dokunmatik ekranda denenmedi.
 9. Henüz yayınlanmadı. Vercel'e bağlayıp iki ortam değişkenini (`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`) girmek yeterli.
 
 ## Sunumlara hazırlık
