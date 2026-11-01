@@ -19,7 +19,8 @@ create table profiles (
 insert into profiles (id, handle, display_name, main_role)
 select
   m.user_id,
-  left(rpad(regexp_replace(translate(lower(m.display_name), 'çğıöşüâî ', 'cgiosuai-'), '[^a-z0-9_-]', '', 'g'), 3, '0'), 20)
+  left(rpad(regexp_replace(translate(lower(m.display_name), 'çğıöşüâî ', 'cgiosuai-'), '[^a-z0-9_-]', '', 'g'),
+    greatest(3, length(regexp_replace(translate(lower(m.display_name), 'çğıöşüâî ', 'cgiosuai-'), '[^a-z0-9_-]', '', 'g'))), '0'), 20)
     || case when count(*) over (partition by lower(m.display_name)) > 1 then '-' || substr(m.user_id::text, 1, 3) else '' end,
   m.display_name,
   m.role
@@ -36,7 +37,8 @@ alter table guilds
   add column owner_id uuid references profiles (id) on delete set null;
 
 update guilds g set
-  slug = left(rpad(regexp_replace(translate(lower(g.name), 'çğıöşüâî ', 'cgiosuai-'), '[^a-z0-9-]', '', 'g'), 3, '0'), 24) || '-' || substr(g.id::text, 1, 4),
+  slug = left(rpad(regexp_replace(translate(lower(g.name), 'çğıöşüâî ', 'cgiosuai-'), '[^a-z0-9-]', '', 'g'),
+    greatest(3, length(regexp_replace(translate(lower(g.name), 'çğıöşüâî ', 'cgiosuai-'), '[^a-z0-9-]', '', 'g'))), '0'), 24) || '-' || substr(g.id::text, 1, 4),
   owner_id = (
     select m.user_id from members m join auth.users u on u.id = m.user_id
     where m.guild_id = g.id order by u.created_at limit 1
