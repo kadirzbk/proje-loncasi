@@ -1,5 +1,7 @@
 import type {
+  Contribution,
   GameState,
+  ProfilePage,
   Guild,
   Quest,
   Resources,
@@ -220,4 +222,57 @@ export function simulateSiege(state: GameState): SiegeResult {
     rounds,
     hpLoss: won ? 0 : Math.min(state.guild.hp, Math.round((threat - defense) * 0.8)),
   };
+}
+
+/* ---------------- portfolyo ---------------- */
+
+export const RANK_LABEL = { owner: "Kurucu", officer: "Yönetici", member: "Üye" } as const;
+
+export interface Badge {
+  id: string;
+  name: string;
+  hint: string;
+  earned: boolean;
+}
+
+/** Profilde gösterilen rozetler. Hepsi katkı ve üyelik verisinden hesaplanır, ayrı tablo yok. */
+export function profileBadges(p: ProfilePage): Badge[] {
+  const c = p.contributions;
+  const byType = (t: Contribution["type"]) => c.filter((x) => x.type === t).length;
+  const guilds = new Set(c.map((x) => x.guildId));
+  p.memberships.forEach((m) => guilds.add(m.guildId));
+  return [
+    { id: "first", name: "İlk Zafer", hint: "İlk kartını bitir.", earned: c.length >= 1 },
+    { id: "ten", name: "Usta Zanaatkâr", hint: "10 kart bitir.", earned: c.length >= 10 },
+    { id: "heavy", name: "Ağır Yük", hint: "8 puanlık bir kartı bitir.", earned: c.some((x) => x.points >= 8) },
+    { id: "design", name: "Plan Ustası", hint: "3 tasarım kartı bitir.", earned: byType("DESIGN") >= 3 },
+    { id: "code", name: "Demirci Ocağı", hint: "5 kod kartı bitir.", earned: byType("CODE") >= 5 },
+    { id: "review", name: "Konsey Üyesi", hint: "Başkalarının 3 kartını onayla.", earned: p.reviewsGiven >= 3 },
+    { id: "multi", name: "Gezgin", hint: "2 farklı loncada çalış.", earned: guilds.size >= 2 },
+    { id: "founder", name: "Kurucu", hint: "Bir lonca kur.", earned: p.memberships.some((m) => m.rank === "owner") },
+  ];
+}
+
+/** Son `weeks` haftanın günlük katkı sayısı, GitHub tarzı ısı haritası için. Pazartesi başlar. */
+export function contributionGrid(c: Contribution[], weeks = 26, today = new Date()): { date: string; count: number }[][] {
+  const key = (d: Date) => d.toISOString().slice(0, 10);
+  const counts = new Map<string, number>();
+  for (const x of c) {
+    const k = x.completedAt.slice(0, 10);
+    counts.set(k, (counts.get(k) ?? 0) + 1);
+  }
+  const end = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
+  const dow = (end.getUTCDay() + 6) % 7; // pazartesi = 0
+  const start = new Date(end.getTime() - ((weeks - 1) * 7 + dow) * 86_400_000);
+  const cols: { date: string; count: number }[][] = [];
+  for (let w = 0; w < weeks; w++) {
+    const col: { date: string; count: number }[] = [];
+    for (let d = 0; d < 7; d++) {
+      const day = new Date(start.getTime() + (w * 7 + d) * 86_400_000);
+      if (day > end) break;
+      col.push({ date: key(day), count: counts.get(key(day)) ?? 0 });
+    }
+    cols.push(col);
+  }
+  return cols;
 }

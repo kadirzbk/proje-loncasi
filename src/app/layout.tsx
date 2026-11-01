@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { Fraunces, Hanken_Grotesk, Martian_Mono } from "next/font/google";
 import "./globals.css";
 import { GameProvider } from "@/lib/store";
@@ -33,9 +34,11 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${fraunces.variable} ${hanken.variable} ${martian.variable} h-full`}
     >
       <body className="min-h-full">
-        <GameProvider>
-          <Shell>{children}</Shell>
-        </GameProvider>
+        <Suspense fallback={<p className="eyebrow py-24 text-center">Lonca açılıyor…</p>}>
+          <GameProvider>
+            <Shell>{children}</Shell>
+          </GameProvider>
+        </Suspense>
       </body>
     </html>
   );

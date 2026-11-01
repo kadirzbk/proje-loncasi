@@ -1,5 +1,6 @@
 "use client";
 
+import { RequireGuild } from "@/components/social-ui";
 import { useState } from "react";
 import { repair, runSiege } from "@/lib/actions";
 import { castleLevel, CASTLE_LEVELS, simulateSiege } from "@/lib/engine";
@@ -7,7 +8,7 @@ import { useGame } from "@/lib/store";
 import type { RoleClass } from "@/lib/types";
 import { Castle } from "@/components/Castle";
 
-export default function KalePage() {
+function KalePageInner() {
   const { state, run } = useGame();
   const [report, setReport] = useState<ReturnType<typeof simulateSiege> | null>(null);
   const g = state.guild;
@@ -112,5 +113,13 @@ function Bar({ label, value, max, color }: { label: string; value: number; max: 
       <div className="flex justify-between"><span className="eyebrow">{label}</span><span className="num text-[12px] text-paper-dim">{value} / {max}</span></div>
       <div className="mt-1.5 h-1.5 bg-ink-3"><div className="h-full transition-all" style={{ width: `${Math.min(100, (value / max) * 100)}%`, background: color }} /></div>
     </div>
+  );
+}
+
+export default function KalePage() {
+  return (
+    <RequireGuild>
+      <KalePageInner />
+    </RequireGuild>
   );
 }

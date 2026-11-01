@@ -1,13 +1,23 @@
 "use client";
 
 import Link from "next/link";
+import { RequireGuild, timeAgo } from "@/components/social-ui";
 import { setRole, starterQuests } from "@/lib/actions";
-import { castleLevel, memberLevel, ROLE_INFO } from "@/lib/engine";
-import { useGame } from "@/lib/store";
+import { castleLevel, memberLevel, RANK_LABEL, ROLE_INFO } from "@/lib/engine";
+import { useGame, useSocial } from "@/lib/store";
 import type { RoleClass } from "@/lib/types";
 
-export default function Karargah() {
-  const { state, run, mode } = useGame();
+export default function KarargahPage() {
+  return (
+    <RequireGuild>
+      <Karargah />
+    </RequireGuild>
+  );
+}
+
+function Karargah() {
+  const { state, run, isOfficer } = useGame();
+  const page = useSocial((api) => api.guild(state.guild.slug ?? ""), [state.guild.slug, state.log.length]);
   const g = state.guild;
   const lvl = castleLevel(g);
   const me = state.members.find((m) => m.id === state.currentUserId)!;
@@ -23,7 +33,7 @@ export default function Karargah() {
             {g.name}
           </h1>
           <p className="mt-6 max-w-xl text-[17px] text-paper-dim">
-            Kod, tasarım ve test görevleri tek panoda. Her teslimat kaleye taş olur, her ihmal sis olur. Cuma günü kuşatma geliyor.
+            {g.tagline || "Kod, tasarım ve test görevleri tek panoda. Her teslimat kaleye taş olur, her ihmal sis olur."}
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Link href="/pano" className="btn btn-solid">Görev panosuna git</Link>
@@ -32,11 +42,15 @@ export default function Karargah() {
               <button className="btn" onClick={() => run((s) => starterQuests(s))}>Başlangıç görevlerini ekle</button>
             )}
           </div>
-          {mode === "remote" && g.inviteCode && (
-            <p className="mt-6 text-[13px] text-paper-dim">
-              Arkadaşlarını davet et, kod: <span className="num select-all border border-line bg-ink-2 px-2 py-1 text-paper">{g.inviteCode}</span>
-            </p>
-          )}
+          <p className="mt-6 text-[13px] text-paper-dim">
+            Herkese açık sayfa: <Link href={`/l/${g.slug}`} className="text-brass hover:underline">/l/{g.slug}</Link>
+            {isOfficer && (
+              <>
+                {" · "}
+                <Link href="/yonet" className="text-brass hover:underline">İlan aç, başvuruları gör</Link>
+              </>
+            )}
+          </p>
         </div>
         <dl className="grid grid-cols-2 gap-px border border-line bg-line">
           {[
@@ -89,7 +103,11 @@ export default function Karargah() {
               return (
                 <li key={m.id} className="py-4">
                   <div className="flex items-baseline justify-between">
-                    <p className="text-[16px] font-semibold">{m.name} <span className="ml-2 text-[13px] font-normal" style={{ color: ROLE_INFO[m.role].hue }}>{ROLE_INFO[m.role].name}</span></p>
+                    <p className="text-[16px] font-semibold">
+                      {m.handle ? <Link href={`/u/${m.handle}`} className="hover:text-brass">{m.name}</Link> : m.name}
+                      <span className="ml-2 text-[13px] font-normal" style={{ color: ROLE_INFO[m.role].hue }}>{ROLE_INFO[m.role].name}</span>
+                      {m.rank && m.rank !== "member" && <span className="eyebrow ml-2">{RANK_LABEL[m.rank]}</span>}
+                    </p>
                     <p className="num text-[13px] text-paper-dim">Sv. {l.level} · {m.xp} XP</p>
                   </div>
                   <div className="mt-2 h-1 bg-ink-3"><div className="h-full" style={{ width: `${(l.into / l.span) * 100}%`, background: ROLE_INFO[m.role].hue }} /></div>
@@ -101,14 +119,15 @@ export default function Karargah() {
         <div>
           <h2 className="display border-b border-line pb-3 text-[28px] italic">Lonca defteri</h2>
           <ol className="divide-y divide-line">
-            {state.log.slice(0, 7).map((e) => (
+            {(page.data?.activity ?? []).slice(0, 8).map((e) => (
               <li key={e.id} className="flex gap-4 py-3 text-[14px]">
-                <time className="num shrink-0 text-[12px] text-paper-faint" dateTime={e.at}>
-                  {new Date(e.at).toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Istanbul" })}
+                <time className="num w-20 shrink-0 text-[11px] text-paper-faint" dateTime={e.createdAt}>
+                  {timeAgo(e.createdAt)}
                 </time>
-                <span>{e.text}</span>
+                <span>{e.body}</span>
               </li>
             ))}
+            {page.data && page.data.activity.length === 0 && <li className="py-3 text-[14px] text-paper-faint">Henüz kayıt yok.</li>}
           </ol>
         </div>
       </section>

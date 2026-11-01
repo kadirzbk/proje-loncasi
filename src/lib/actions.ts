@@ -32,7 +32,13 @@ function settle(s: GameState, id: string): ActionResult {
   const q = s.quests.find((x) => x.id === id)!;
   if (q.rewarded) return { state: s };
   const r = computeReward(q, s);
-  let next = patchQuest(s, id, (x) => ({ ...x, status: "DONE", rewarded: true }));
+  let next = patchQuest(s, id, (x) => ({
+    ...x,
+    status: "DONE",
+    rewarded: true,
+    rewardXp: r.xp,
+    completedAt: new Date().toISOString(),
+  }));
   next = {
     ...next,
     guild: {
@@ -353,5 +359,15 @@ export function assignQuest(s: GameState, id: string, userId: string | null): Ac
     state: log(next, `${q.code} ${who ? `${who} üzerine atandı` : "sahipsiz bırakıldı"}.`),
     tone: "info",
     message: who ? `${q.code} ${who} üzerine atandı.` : `${q.code} sahipsiz.`,
+  };
+}
+
+/** Başvurusu kabul edilen kişiyi loncaya ekler (yerel demo; Supabase'de veritabanı yapar). */
+export function addMember(s: GameState, m: { id: string; name: string; role: RoleClass }): ActionResult {
+  if (s.members.some((x) => x.id === m.id)) return { state: s };
+  return {
+    state: log({ ...s, members: [...s.members, { ...m, xp: 0, rank: "member" }] }, `${m.name} loncaya katıldı.`),
+    tone: "good",
+    message: `${m.name} loncaya katıldı.`,
   };
 }
