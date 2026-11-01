@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { linkPR, mergePR, moveQuest, review } from "@/lib/actions";
+import { assignQuest, linkPR, mergePR, moveQuest, review } from "@/lib/actions";
 import { blueprintActive, canComplete, computeReward, ROLE_INFO, STATUS_LABEL, TYPE_LABEL } from "@/lib/engine";
 import { useGame } from "@/lib/store";
 import { DesignStudio } from "./DesignStudio";
@@ -23,6 +23,7 @@ export function QuestDrawer({ id, onClose }: { id: string; onClose: () => void }
   const reward = computeReward(quest, state);
   const pre = state.quests.find((x) => x.id === quest.prerequisiteId);
   const isMine = quest.assigneeId === state.currentUserId;
+  const unowned = !quest.assigneeId;
 
   return (
     <div className="fixed inset-0 z-40 flex justify-end">
@@ -55,6 +56,26 @@ export function QuestDrawer({ id, onClose }: { id: string; onClose: () => void }
             </div>
           ))}
         </dl>
+
+        {quest.status !== "DONE" && (
+          <div className="mt-4 flex flex-wrap items-center gap-3">
+            <label className="eyebrow" htmlFor="assignee">Sahibi</label>
+            <select
+              id="assignee"
+              className="field !w-auto !py-1.5 text-[13px]"
+              value={quest.assigneeId ?? ""}
+              onChange={(e) => run((s) => assignQuest(s, quest.id, e.target.value || null))}
+            >
+              <option value="">Atanmadı</option>
+              {state.members.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
+            </select>
+            {quest.assigneeId !== state.currentUserId && (
+              <button className="btn !py-1.5 text-[12px]" onClick={() => run((s) => assignQuest(s, quest.id, s.currentUserId))}>
+                Üstlen
+              </button>
+            )}
+          </div>
+        )}
 
         {pre && (
           <p className="mt-4 border-l-2 border-brass pl-3 text-[13px] text-paper-dim">
@@ -132,14 +153,15 @@ export function QuestDrawer({ id, onClose }: { id: string; onClose: () => void }
             <div className="space-y-3">
               <input className="field" placeholder="İnceleme notu (isteğe bağlı)" value={comment} onChange={(e) => setComment(e.target.value)} />
               <div className="flex flex-wrap gap-2">
-                <button className="btn btn-solid" disabled={isMine} onClick={() => { run((s) => review(s, quest.id, "APPROVED", comment)); setComment(""); }}>
+                <button className="btn btn-solid" disabled={isMine || unowned} onClick={() => { run((s) => review(s, quest.id, "APPROVED", comment)); setComment(""); }}>
                   Onayla
                 </button>
-                <button className="btn" disabled={isMine} onClick={() => { run((s) => review(s, quest.id, "CHANGES_REQUESTED", comment || "Düzeltme gerekli")); setComment(""); }}>
+                <button className="btn" disabled={isMine || unowned} onClick={() => { run((s) => review(s, quest.id, "CHANGES_REQUESTED", comment || "Düzeltme gerekli")); setComment(""); }}>
                   Değişiklik iste
                 </button>
               </div>
-              {isMine && <p className="text-[12px] text-paper-faint">Kendi kartını onaylayamazsın. Üst menüden başka bir üyeye geç.</p>}
+              {isMine && <p className="text-[12px] text-paper-faint">Kendi kartını onaylayamazsın. Bir takım arkadaşı onaylamalı.</p>}
+              {unowned && <p className="text-[12px] text-paper-faint">Kartın sahibi yok. Yukarıdan bir üyeye ata ya da üstlen, sonra başkası onaylayabilir.</p>}
             </div>
           )}
         </section>

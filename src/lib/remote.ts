@@ -335,6 +335,12 @@ export async function pushDiff(
       fail("PR kaydı", r.error);
     }
 
+    const removed = (old?.approvals ?? []).filter((a) => !q.approvals.some((b) => b.reviewerId === a.reviewerId));
+    for (const a of removed) {
+      const r = await sb.from("approvals").delete().eq("quest_id", q.id).eq("reviewer_id", a.reviewerId);
+      fail("onay silme", r.error);
+    }
+
     const newApprovals = q.approvals.filter((a) => {
       const before = old?.approvals.find((x) => x.reviewerId === a.reviewerId);
       return !before || JSON.stringify(before) !== JSON.stringify(a);

@@ -72,3 +72,25 @@ Panelde yapılması gereken: Authentication > Providers > Email > **Confirm emai
 - Next.js 16 kullanılıyor. `AGENTS.md` içindeki uyarı geçerli: bilinen API'ler değişmiş olabilir, emin olmadığında `node_modules/next/dist/docs/` içine bak.
 - `npm run lint` ve `npx tsc --noEmit` temiz olmalı.
 - Yapay zeka destekli geliştirme serbest. Bu depodaki kodun büyük kısmı Claude ile yazıldı.
+
+## İnceleme notları (2026-11-01)
+
+Düzeltilenler:
+- Sahibi olmayan kart onaylanabiliyordu, bu yüzden tek kişi kendi kartını bitirebiliyordu. Artık sahibi olmayan karta onay verilemez ve Done olamaz (arayüz, `canComplete` ve veritabanı tetikleyicisi, migration 004). Karta sahip atama ve "Üstlen" düğmesi eklendi.
+- Yeni tasarım versiyonu yüklenince önceki onaylar sıfırlanıyor. Daha önce eski onay yeni versiyona da geçerli sayılıyordu.
+- Bir inceleyici "değişiklik iste" derse başka birinin onayı kartı bitirmeye yetmiyor.
+- Odak sayfasındaki 15 saniyelik demo oturumu 25 dakika sayılıyordu, artık 1 dakika sayılıyor.
+
+Hâlâ eksik, öncelik sırasıyla:
+1. **Sprint kavramı yok.** `hoursToSprintEnd` sabit 72, bu yüzden Muhafız "hızlı teslimat" bonusu hiç tetiklenmiyor. Kuşatma bir düğme, otomatik değil. Sprint tablosu (başlangıç, bitiş) ve sprint bitince otomatik kuşatma gerekiyor.
+2. **İhmalin cezası yok.** Stabilite sadece kaybedilen kuşatmada düşüyor, hiçbir şey yapmayınca azalmıyor. "İhmal sis olur" vaadi şu an doğru değil. Son etkinlik zamanına göre azalma eklenmeli.
+3. **Klasik oyunlaştırma öğeleri yok:** rozet, seri (streak), liderlik tablosu. Oyunlaştırma dersi için en ucuz ve en görünür kazanım bunlar.
+4. Odak süresi sayfada tutuluyor, sekme kapanınca kayboluyor ama bonus veriyor. Ya veritabanına yazılmalı ya da bonus düşürülmeli.
+5. Lonca defteri Supabase'de kalıcı değil. Basit bir olay tablosu yeter.
+6. Gerçek zamanlı değil (12 saniyede bir yenileme), bildirim yok.
+7. Kart düzenleme ve silme yok. Yanlış yüklenen versiyonu geri alma yok. Gözcü (QA) kartlarında teslimat alanı yok, sadece onay var.
+8. Denge ayarı yapılmadı: kale eşikleri (0/60/160/320) ve XP formülü 2 kişilik ekiple denenmedi.
+
+Sadeleştirilebilecekler: 4 sınıf ve üç ayrı kaynak (taş, ahşap, harç) 2 kişilik ekip için fazla ayrıntı. Sınıf bonusları sprint gelmeden anlamsız. Plan Bonusu'nu kullanıcı bulamazsa hiç kullanılmaz, kart oluştururken daha görünür olmalı ya da kaldırılmalı. Can ve stabilite iki ayrı çubuk, birleşebilir.
+
+Not: tek kişilik loncada hiçbir kart bitirilemez (kural gereği). Test için ikinci bir hesapla (gizli pencere) aynı davet koduyla katıl.

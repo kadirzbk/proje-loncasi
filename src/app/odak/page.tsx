@@ -7,7 +7,7 @@ import { useGame } from "@/lib/store";
 const PRESETS = [
   { label: "25 dk", sec: 25 * 60, minutes: 25 },
   { label: "50 dk", sec: 50 * 60, minutes: 50 },
-  { label: "15 sn demo", sec: 15, minutes: 25 },
+  { label: "15 sn demo (1 dk sayılır)", sec: 15, minutes: 1 },
 ];
 
 export default function OdakPage() {

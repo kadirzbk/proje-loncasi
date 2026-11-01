@@ -120,12 +120,13 @@ export function addVersion(
   const next = patchQuest(s, id, (q) => ({
     ...q,
     status: q.status === "BACKLOG" ? "IN_PROGRESS" : q.status,
+    approvals: [],
     versions: [
       ...q.versions,
       { id: uid(), n: q.versions.length + 1, imageUrl, note, createdAt: new Date().toISOString(), pins: [] },
     ],
   }));
-  return { state: next, tone: "info", message: "Yeni versiyon yüklendi." };
+  return { state: next, tone: "info", message: "Yeni versiyon yüklendi. Önceki onaylar sıfırlandı, yeniden onay gerekir." };
 }
 
 export function addPin(
@@ -173,6 +174,13 @@ export function review(
 ): ActionResult {
   const q = s.quests.find((x) => x.id === id);
   if (!q) return { state: s };
+  if (!q.assigneeId) {
+    return {
+      state: s,
+      tone: "bad",
+      message: "Kartın sahibi yok. Önce bir üyeye atanmalı, sonra başkası onaylayabilir.",
+    };
+  }
   if (q.assigneeId === s.currentUserId) {
     return {
       state: s,
@@ -328,5 +336,22 @@ export function starterQuests(s: GameState): ActionResult {
     state: log({ ...s, quests: [...s.quests, ...quests] }, "Başlangıç görevleri ilan panosuna eklendi."),
     tone: "info",
     message: "4 başlangıç görevi eklendi.",
+  };
+}
+
+export function assignQuest(s: GameState, id: string, userId: string | null): ActionResult {
+  const q = s.quests.find((x) => x.id === id);
+  if (!q || q.status === "DONE") return { state: s };
+  // Yeni sahibi eski onaylardan biriyse o onay geçersiz olur.
+  const next = patchQuest(s, id, (x) => ({
+    ...x,
+    assigneeId: userId,
+    approvals: x.approvals.filter((a) => a.reviewerId !== userId),
+  }));
+  const who = s.members.find((m) => m.id === userId)?.name;
+  return {
+    state: log(next, `${q.code} ${who ? `${who} üzerine atandı` : "sahipsiz bırakıldı"}.`),
+    tone: "info",
+    message: who ? `${q.code} ${who} üzerine atandı.` : `${q.code} sahipsiz.`,
   };
 }

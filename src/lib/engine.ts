@@ -75,10 +75,14 @@ export function canComplete(q: Quest): DoneCheck {
       };
     }
   }
-  const approved = q.approvals.some(
-    (a) => a.status === "APPROVED" && a.reviewerId !== q.assigneeId,
-  );
-  if (!approved) {
+  if (!q.assigneeId) {
+    return { ok: false, reason: "Kartın sahibi yok. Önce bir üyeye ata ya da üstlen." };
+  }
+  const others = q.approvals.filter((a) => a.reviewerId !== q.assigneeId);
+  if (others.some((a) => a.status === "CHANGES_REQUESTED")) {
+    return { ok: false, reason: "Bir inceleyici değişiklik istedi. Düzeltip yeniden onay al." };
+  }
+  if (!others.some((a) => a.status === "APPROVED")) {
     return { ok: false, reason: "Takım arkadaşından onay bekleniyor." };
   }
   return { ok: true };
