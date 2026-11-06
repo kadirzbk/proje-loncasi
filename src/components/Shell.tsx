@@ -40,8 +40,8 @@ export function Shell({ children }: { children: ReactNode }) {
     <div className="mx-auto flex min-h-screen w-full max-w-[1280px] flex-col px-4 sm:px-8">
       <header className="border-b border-line pt-5">
         <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
-          <Link href={hasGuild ? "/" : "/kesfet"} className="logo leading-none text-paper" aria-label="Proje Loncası">
-            PROJE<b>/</b>LONCASI
+          <Link href={hasGuild ? "/" : "/kesfet"} className="display text-[26px] italic leading-none text-paper">
+            Proje Loncası
           </Link>
           {!gated && (
             <div className="flex flex-wrap items-center gap-2 sm:gap-3">
@@ -135,7 +135,7 @@ export function Shell({ children }: { children: ReactNode }) {
             key={toast.id}
             className={`rise pointer-events-auto max-w-xl border px-4 py-3 text-[14px] ${
               toast.tone === "bad"
-                ? "border-blood bg-[#3a1030] text-paper"
+                ? "border-blood bg-[#2a1412] text-paper"
                 : toast.tone === "good"
                   ? "border-brass bg-ink-3 text-paper"
                   : "border-line bg-ink-3 text-paper"
