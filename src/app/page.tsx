@@ -29,7 +29,7 @@ function Karargah() {
       <section className="grid gap-10 lg:grid-cols-[1.5fr_1fr] lg:items-end">
         <div>
           <p className="eyebrow">Lonca Karargahı</p>
-          <h1 className="display mt-3 text-[clamp(44px,8vw,92px)] leading-[0.95]">
+          <h1 className="display mt-3 text-[clamp(38px,6vw,68px)] leading-[0.95]">
             {g.name}
           </h1>
           <p className="mt-6 max-w-xl text-[17px] text-paper-dim">
@@ -52,16 +52,16 @@ function Karargah() {
             )}
           </p>
         </div>
-        <dl className="grid grid-cols-2 gap-px border border-line bg-line">
+        <dl className="grid grid-cols-2 gap-2.5">
           {[
             ["Kale", `${lvl.level}. seviye`],
             ["Can", `${g.hp} / ${g.maxHp}`],
             ["İncelemede", `${inReview} kart`],
             ["Zaferler", `${done} kart`],
           ].map(([k, v]) => (
-            <div key={k} className="bg-ink-2 p-4">
+            <div key={k} className="notch border border-line bg-ink-2 p-4">
               <dt className="eyebrow">{k}</dt>
-              <dd className="num mt-1.5 text-[20px]">{v}</dd>
+              <dd className="num mt-1.5 text-[24px]">{v}</dd>
             </div>
           ))}
         </dl>

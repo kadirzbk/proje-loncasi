@@ -1,24 +1,26 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import { Fraunces, Hanken_Grotesk, Martian_Mono } from "next/font/google";
+import { Chakra_Petch, IBM_Plex_Mono, IBM_Plex_Sans } from "next/font/google";
 import "./globals.css";
 import { GameProvider } from "@/lib/store";
 import { Shell } from "@/components/Shell";
 
-const fraunces = Fraunces({
-  variable: "--font-fraunces",
+const chakra = Chakra_Petch({
+  variable: "--font-chakra",
   subsets: ["latin", "latin-ext"],
-  axes: ["SOFT", "opsz"],
+  weight: ["500", "600", "700"],
 });
 
-const hanken = Hanken_Grotesk({
-  variable: "--font-hanken",
+const plex = IBM_Plex_Sans({
+  variable: "--font-plex",
   subsets: ["latin", "latin-ext"],
+  weight: ["400", "500", "600", "700"],
 });
 
-const martian = Martian_Mono({
-  variable: "--font-martian",
+const plexMono = IBM_Plex_Mono({
+  variable: "--font-plex-mono",
   subsets: ["latin", "latin-ext"],
+  weight: ["400", "500"],
 });
 
 export const metadata: Metadata = {
@@ -31,7 +33,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="tr"
-      className={`${fraunces.variable} ${hanken.variable} ${martian.variable} h-full`}
+      className={`${chakra.variable} ${plex.variable} ${plexMono.variable} h-full`}
     >
       <body className="min-h-full">
         <Suspense fallback={<p className="eyebrow py-24 text-center">Lonca açılıyor…</p>}>

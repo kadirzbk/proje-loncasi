@@ -47,7 +47,7 @@ export default function GuildPublic() {
           <p className="eyebrow">
             {lvl.name} · {lvl.level}. seviye {g.visibility === "private" && "· Gizli lonca"}
           </p>
-          <h1 className="display mt-3 text-[clamp(44px,8vw,88px)] leading-[0.95]">{c.name}</h1>
+          <h1 className="display mt-3 text-[clamp(38px,6vw,68px)] leading-[0.95]">{c.name}</h1>
           {c.tagline && <p className="mt-4 max-w-xl text-[18px] text-paper">{c.tagline}</p>}
           {g.description && <p className="mt-4 max-w-xl whitespace-pre-line text-[15px] text-paper-dim">{g.description}</p>}
           <div className="mt-8 flex flex-wrap items-center gap-3">

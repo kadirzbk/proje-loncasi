@@ -33,7 +33,7 @@ export default function Kesfet() {
       <section className="grid gap-8 lg:grid-cols-[1.4fr_1fr] lg:items-end">
         <div>
           <p className="eyebrow">Lonca ağı</p>
-          <h1 className="display mt-2 text-[clamp(44px,7vw,80px)] leading-[0.95]">
+          <h1 className="display mt-2 text-[clamp(38px,6vw,68px)] leading-[0.95]">
             Keşfet. <em className="text-brass">Başvur. Güçlendir.</em>
           </h1>
           <p className="mt-5 max-w-xl text-[16px] text-paper-dim">

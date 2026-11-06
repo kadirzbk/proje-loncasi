@@ -38,21 +38,21 @@ export default function ProfilePublic() {
           <Crest name={p.name} role={p.mainRole} size={112} />
           <div>
             <p className="num text-[13px] text-paper-faint">@{p.handle}</p>
-            <h1 className="display mt-1 text-[clamp(40px,7vw,72px)] leading-[0.95]">{p.name}</h1>
+            <h1 className="display mt-1 text-[clamp(36px,6vw,64px)] leading-[0.95]">{p.name}</h1>
             <p className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1">
               <RoleTag role={p.mainRole} className="!text-[14px]" />
               <span className="text-[13px] text-paper-dim">{ROLE_INFO[p.mainRole].field}</span>
             </p>
           </div>
         </div>
-        <dl className="grid grid-cols-2 gap-px border border-line bg-line">
+        <dl className="grid grid-cols-2 gap-2.5">
           {[
             ["Seviye", `${lvl.level}`],
             ["Toplam XP", `${xp}`],
             ["Biten kart", `${contributions.length}`],
             ["Onayladığı", `${page.data.reviewsGiven} kart`],
           ].map(([k, v]) => (
-            <div key={k} className="bg-ink-2 p-4">
+            <div key={k} className="notch border border-line bg-ink-2 p-4">
               <dt className="eyebrow">{k}</dt>
               <dd className="num mt-1.5 text-[20px]">{v}</dd>
             </div>

@@ -21,7 +21,7 @@ export function AuthGate() {
       <div className="rise mx-auto grid max-w-5xl gap-12 py-10 lg:grid-cols-[1.2fr_1fr] lg:items-center">
         <div>
           <p className="eyebrow">DOT407 · DOT403</p>
-          <h1 className="display mt-3 text-[clamp(44px,7vw,84px)] leading-[0.95]">Birlikte inşa et. <em className="text-brass">Birlikte savun.</em></h1>
+          <h1 className="display mt-3 text-[clamp(38px,6vw,68px)] leading-[0.95]">Birlikte inşa et. <em className="text-brass">Birlikte savun.</em></h1>
           <p className="mt-6 max-w-lg text-[17px] text-paper-dim">
             Loncanı kur ya da üye arayan bir loncaya katıl. Bitirdiğin her kart hem loncanın kalesini büyütür hem senin portfolyona yazılır.
           </p>
