@@ -95,7 +95,7 @@ const EMPTY: GameState = {
   log: [],
 };
 
-const MUTATIONS = ["apply", "withdraw", "decide", "createOpening", "setOpeningStatus", "updateGuild", "setRank", "removeMember"] as const;
+const MUTATIONS = ["apply", "withdraw", "decide", "createOpening", "setOpeningStatus", "updateGuild", "setRank", "removeMember", "deleteGuild"] as const;
 
 export function GameProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<GameState>(() => (isRemote ? EMPTY : seedState()));
@@ -244,7 +244,14 @@ export function GameProvider({ children }: { children: ReactNode }) {
         activeRef.current = gid;
         setActiveGuildId(gid);
       }
-      if (!gid) return;
+      if (!gid) {
+        if (ref.current.guild.id) {
+          const empty = { ...EMPTY, currentUserId: uid };
+          ref.current = empty;
+          setState(empty);
+        }
+        return;
+      }
       const s = await fetchState(supabase, uid, gid);
       if (s && inflight.current === 0 && activeRef.current === gid) {
         // İmzalı görsel bağlantıları her çekişte değişir, defter yerel; yalnızca içerik değiştiyse yenile.

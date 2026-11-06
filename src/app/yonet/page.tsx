@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Crest, Empty, Loading, OpeningItem, RequireGuild, RoleTag, SkillList, timeAgo } from "@/components/social-ui";
 import { memberLevel, profileBadges, RANK_LABEL, ROLE_INFO } from "@/lib/engine";
@@ -321,6 +322,54 @@ function Settings({ gid }: { gid: string }) {
         <p className="mt-1 text-[13px] text-paper-dim">Kodu bilen kişi başvuru beklemeden katılır. Sadece takım arkadaşlarınla paylaş.</p>
         <p className="num mt-3 inline-block select-all border border-line bg-ink-2 px-3 py-1.5 text-[15px]">{code.data ?? "…"}</p>
       </div>
+      <DangerZone gid={gid} />
     </section>
+  );
+}
+
+function DangerZone({ gid }: { gid: string }) {
+  const { state, social, notify, memberships } = useGame();
+  const router = useRouter();
+  const [open, setOpen] = useState(false);
+  const [typed, setTyped] = useState("");
+  const [busy, setBusy] = useState(false);
+  if (memberships.find((m) => m.guildId === gid)?.rank !== "owner") return null;
+  const name = state.guild.name;
+  return (
+    <div className="mt-8 border border-blood p-5">
+      <p className="eyebrow !text-ember">Tehlikeli bölge</p>
+      <p className="mt-1 text-[13px] text-paper-dim">
+        Loncayı silmek kartları, tasarımları, ilanları, başvuruları, defteri ve üyelikleri kalıcı olarak siler. Üyelerin portfolyosundaki bu loncaya ait katkılar da gider. Geri alınamaz.
+      </p>
+      {!open ? (
+        <button className="btn mt-4 !border-blood !text-ember" onClick={() => setOpen(true)}>Loncayı sil</button>
+      ) : (
+        <form
+          className="mt-4 space-y-3"
+          onSubmit={async (e) => {
+            e.preventDefault();
+            setBusy(true);
+            try {
+              await social.deleteGuild(gid, typed.trim());
+              notify(`${name} silindi.`, "info");
+              router.push("/kesfet");
+            } catch (x) {
+              notify(x instanceof Error ? x.message : "Silinemedi.", "bad");
+            } finally {
+              setBusy(false);
+            }
+          }}
+        >
+          <label className="block">
+            <span className="eyebrow">Onaylamak için lonca adını yaz: {name}</span>
+            <input autoFocus className="field mt-1" value={typed} onChange={(e) => setTyped(e.target.value)} />
+          </label>
+          <div className="flex gap-2">
+            <button className="btn !border-blood !bg-blood !text-paper" disabled={busy || typed.trim() !== name}>Kalıcı olarak sil</button>
+            <button type="button" className="btn" onClick={() => { setOpen(false); setTyped(""); }}>Vazgeç</button>
+          </div>
+        </form>
+      )}
+    </div>
   );
 }

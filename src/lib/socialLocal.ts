@@ -462,6 +462,9 @@ export function localSocial(ctx: Ctx): SocialApi {
         },
       }));
     },
+    async deleteGuild() {
+      throw new Error("Demo modunda oynanan lonca silinemez. Sıfırlamak için alttaki \"Demo verisini sıfırla\" düğmesini kullan.");
+    },
     async inviteCode(guildId) {
       return guildId === LOCAL_GUILD && isOfficer(guildId, me()) ? "DEMO-1234" : null;
     },

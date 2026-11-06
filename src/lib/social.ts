@@ -56,6 +56,8 @@ export interface SocialApi {
   setRank(guildId: string, userId: string, rank: Exclude<Rank, "owner">): Promise<void>;
   removeMember(guildId: string, userId: string): Promise<void>;
   inviteCode(guildId: string): Promise<string | null>;
+  /** Sadece kurucu. Onay için lonca adının birebir yazılması gerekir. */
+  deleteGuild(guildId: string, confirmName: string): Promise<void>;
 }
 
 /* ------------------------------------------------------------------ yardımcılar */
@@ -467,6 +469,11 @@ export function remoteSocial(sb: SupabaseClient, uid: () => string | null): Soci
     async removeMember(guildId, userId) {
       const r = await sb.rpc("remove_member", { gid: guildId, uid: userId });
       fail("Üye çıkarılamadı", r.error);
+    },
+
+    async deleteGuild(guildId, confirmName) {
+      const r = await sb.rpc("delete_guild", { gid: guildId, confirm_name: confirmName });
+      fail("Lonca silinemedi", r.error);
     },
 
     async inviteCode(guildId) {
