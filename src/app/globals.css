@@ -1,22 +1,24 @@
 @import "tailwindcss";
 
 @theme inline {
-  --color-ink: #0e0d0b;
-  --color-ink-2: #161410;
-  --color-ink-3: #1f1c16;
-  --color-line: #342f25;
-  --color-paper: #ece4d1;
-  --color-paper-dim: #a79f8b;
-  --color-paper-faint: #6d6757;
-  --color-brass: #c99b4a;
-  --color-ember: #c4552f;
-  --color-moss: #86a46c;
-  --color-ice: #84b4bc;
-  --color-blood: #8f2f2b;
+  --color-ink: #140c24;
+  --color-ink-2: #1e1236;
+  --color-ink-3: #2a1a4a;
+  --color-line: #4a2f7a;
+  --color-paper: #f6ecff;
+  --color-paper-dim: #b3a4d4;
+  --color-paper-faint: #7d6ea3;
+  --color-brass: #ffc93c;
+  --color-ember: #ff6b4a;
+  --color-moss: #6fe08a;
+  --color-ice: #5cc8ff;
+  --color-blood: #e0336f;
+  --color-pink: #ff4fd8;
 
-  --font-display: var(--font-fraunces), Georgia, serif;
-  --font-sans: var(--font-hanken), system-ui, sans-serif;
-  --font-mono: var(--font-martian), ui-monospace, monospace;
+  --font-display: var(--font-pixelify), monospace;
+  --font-logo: var(--font-pixel), monospace;
+  --font-sans: var(--font-rubik), system-ui, sans-serif;
+  --font-mono: var(--font-vt), ui-monospace, monospace;
 }
 
 :root {
@@ -32,19 +34,19 @@ body {
   color: var(--color-paper);
   font-family: var(--font-sans);
   font-size: 15px;
-  line-height: 1.5;
+  line-height: 1.55;
   -webkit-font-smoothing: antialiased;
 }
 
-/* ince kâğıt dokusu */
+/* hafif CRT tarama çizgileri */
 body::before {
   content: "";
   position: fixed;
   inset: 0;
   pointer-events: none;
   z-index: 100;
-  opacity: 0.05;
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  opacity: 0.06;
+  background: repeating-linear-gradient(0deg, #000 0 1px, transparent 1px 3px);
 }
 
 ::selection {
@@ -54,22 +56,40 @@ body::before {
 
 .display {
   font-family: var(--font-display);
-  font-variation-settings: "SOFT" 30, "WONK" 0;
-  letter-spacing: -0.015em;
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: 0;
+  font-style: normal !important;
+}
+
+/* Logo: klasik 8-bit yazı (Türkçe büyük İ içermediği için sadece logoda) */
+.logo {
+  font-family: var(--font-logo);
+  font-size: 15px;
+  letter-spacing: 0.02em;
+  text-shadow: 3px 3px 0 #000;
+}
+.logo b {
+  color: var(--color-brass);
+  font-weight: 400;
 }
 
 .num {
   font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
-  letter-spacing: -0.02em;
+  /* VT323 küçük görünür; biraz büyütülür. */
+  font-size-adjust: ex-height 0.62;
+  letter-spacing: 0.02em;
 }
 
 .eyebrow {
   font-family: var(--font-mono);
-  font-size: 10.5px;
-  letter-spacing: 0.16em;
+  font-size: 15px;
+  font-size-adjust: ex-height 0.55;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--color-paper-faint);
+  line-height: 1.2;
 }
 
 .rule {
@@ -77,6 +97,8 @@ body::before {
 }
 
 .btn {
+  box-shadow: 3px 3px 0 #000;
+  border-width: 2px !important;
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -93,6 +115,10 @@ body::before {
 .btn:hover {
   border-color: var(--color-brass);
   color: var(--color-brass);
+}
+.btn:active {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0 #000;
 }
 .btn:focus-visible,
 button:focus-visible,
@@ -120,6 +146,7 @@ select:focus-visible {
 }
 
 .field {
+  border-width: 2px !important;
   width: 100%;
   background: var(--color-ink-2);
   border: 1px solid var(--color-line);
@@ -161,4 +188,8 @@ select:focus-visible {
     animation: none !important;
     transition: none !important;
   }
+}
+
+.display em {
+  font-style: normal;
 }

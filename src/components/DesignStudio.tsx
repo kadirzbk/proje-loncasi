@@ -193,13 +193,13 @@ export function DesignStudio({ quest }: { quest: Quest }) {
       {mode === "slider" && (
         <label className="block">
           <span className="eyebrow">Karşılaştırma çubuğu</span>
-          <input type="range" min={0} max={100} value={pos} onChange={(e) => setPos(+e.target.value)} className="mt-2 w-full accent-[#c99b4a]" aria-label="Önce sonra çubuğu" />
+          <input type="range" min={0} max={100} value={pos} onChange={(e) => setPos(+e.target.value)} className="mt-2 w-full accent-[#ffc93c]" aria-label="Önce sonra çubuğu" />
         </label>
       )}
       {mode === "onion" && (
         <label className="block">
           <span className="eyebrow">Yeni versiyon opaklığı: %{opacity}</span>
-          <input type="range" min={0} max={100} value={opacity} onChange={(e) => setOpacity(+e.target.value)} className="mt-2 w-full accent-[#c99b4a]" aria-label="Opaklık" />
+          <input type="range" min={0} max={100} value={opacity} onChange={(e) => setOpacity(+e.target.value)} className="mt-2 w-full accent-[#ffc93c]" aria-label="Opaklık" />
         </label>
       )}
 

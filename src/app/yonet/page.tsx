@@ -307,11 +307,11 @@ function Settings({ gid }: { gid: string }) {
         <label className="block"><span className="eyebrow">Açıklama</span><textarea maxLength={1200} className="field mt-1 min-h-24" value={description} onChange={(e) => setDescription(e.target.value)} /></label>
         <div className="grid gap-3 sm:grid-cols-2">
           <label className="flex items-center gap-2 text-[14px]">
-            <input type="checkbox" checked={recruiting} onChange={(e) => setRecruiting(e.target.checked)} className="accent-[#c99b4a]" />
+            <input type="checkbox" checked={recruiting} onChange={(e) => setRecruiting(e.target.checked)} className="accent-[#ffc93c]" />
             Üye alıyoruz
           </label>
           <label className="flex items-center gap-2 text-[14px]">
-            <input type="checkbox" checked={visibility === "private"} onChange={(e) => setVisibility(e.target.checked ? "private" : "public")} className="accent-[#c99b4a]" />
+            <input type="checkbox" checked={visibility === "private"} onChange={(e) => setVisibility(e.target.checked ? "private" : "public")} className="accent-[#ffc93c]" />
             Gizli lonca (Keşfet&apos;te görünmez)
           </label>
         </div>

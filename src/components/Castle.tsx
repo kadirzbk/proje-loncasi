@@ -7,17 +7,17 @@ interface Props {
   doneByRole: Record<RoleClass, number>;
 }
 
-const BRASS = "#c99b4a";
-const PAPER = "#ece4d1";
-const DIM = "#6d6757";
-const LINE = "#342f25";
+const BRASS = "#ffc93c";
+const PAPER = "#f6ecff";
+const DIM = "#7d6ea3";
+const LINE = "#4a2f7a";
 
 function Tower({ x, y, h = 70, w = 34, roof = true, stroke = PAPER }: { x: number; y: number; h?: number; w?: number; roof?: boolean; stroke?: string }) {
   return (
-    <g stroke={stroke} strokeWidth={1.6} fill="#161410" strokeLinejoin="round">
+    <g stroke={stroke} strokeWidth={1.6} fill="#1e1236" strokeLinejoin="round">
       <rect x={x - w / 2} y={y - h} width={w} height={h} />
       {roof ? (
-        <path d={`M${x - w / 2 - 5} ${y - h} L${x} ${y - h - 28} L${x + w / 2 + 5} ${y - h} Z`} fill="#1f1c16" />
+        <path d={`M${x - w / 2 - 5} ${y - h} L${x} ${y - h - 28} L${x + w / 2 + 5} ${y - h} Z`} fill="#2a1a4a" />
       ) : (
         <path d={`M${x - w / 2} ${y - h} h6 v-7 h6 v7 h6 v-7 h6 v7 h${w - 24}`} fill="none" />
       )}
@@ -47,13 +47,13 @@ export function Castle({ level, stability, hpPct, doneByRole }: Props) {
 
       {/* zemin */}
       <ellipse cx="320" cy="318" rx="290" ry="42" fill="url(#hatch)" stroke={LINE} />
-      <ellipse cx="320" cy="312" rx="250" ry="30" fill="#161410" stroke={LINE} />
+      <ellipse cx="320" cy="312" rx="250" ry="30" fill="#1e1236" stroke={LINE} />
 
       {level === 1 && (
-        <g stroke={PAPER} strokeWidth="1.6" fill="#1f1c16" strokeLinejoin="round">
+        <g stroke={PAPER} strokeWidth="1.6" fill="#2a1a4a" strokeLinejoin="round">
           <path d="M250 312 L320 214 L390 312 Z" />
           <path d="M320 214 L320 312" stroke={DIM} />
-          <path d="M295 312 L320 268 L345 312 Z" fill="#0e0d0b" />
+          <path d="M295 312 L320 268 L345 312 Z" fill="#140c24" />
           <path d="M320 214 v-26 l22 8 l-22 8" stroke={BRASS} fill={BRASS} />
           <path d="M175 312 L215 258 L255 312 Z" />
           <path d="M385 312 L425 266 L465 312 Z" />
@@ -61,15 +61,15 @@ export function Castle({ level, stability, hpPct, doneByRole }: Props) {
       )}
 
       {level >= 2 && (
-        <g stroke={PAPER} strokeWidth="1.6" strokeLinejoin="round" fill="#1f1c16">
+        <g stroke={PAPER} strokeWidth="1.6" strokeLinejoin="round" fill="#2a1a4a">
           {/* sur */}
-          <rect x="170" y={312 - wallH} width="300" height={wallH} fill={level >= 3 ? "#26211b" : "#2a2218"} />
+          <rect x="170" y={312 - wallH} width="300" height={wallH} fill={level >= 3 ? "#33205a" : "#2a1a4a"} />
           {Array.from({ length: 15 }).map((_, i) => (
-            <line key={i} x1={185 + i * 20} y1={312 - wallH} x2={185 + i * 20} y2={312} stroke={level >= 3 ? LINE : "#4a3a22"} />
+            <line key={i} x1={185 + i * 20} y1={312 - wallH} x2={185 + i * 20} y2={312} stroke={level >= 3 ? LINE : "#4a2f7a"} />
           ))}
           <path d={`M170 ${312 - wallH} ${Array.from({ length: 15 }, () => "h10 v-8 h10 v8").join(" ")}`} fill="none" />
           {/* kapı */}
-          <path d="M300 312 v-34 a20 20 0 0 1 40 0 v34 z" fill="#0e0d0b" />
+          <path d="M300 312 v-34 a20 20 0 0 1 40 0 v34 z" fill="#140c24" />
           <path d="M320 258 v54" stroke={BRASS} />
         </g>
       )}
@@ -104,7 +104,7 @@ export function Castle({ level, stability, hpPct, doneByRole }: Props) {
 
       {/* çatlaklar */}
       {cracked && level >= 2 && (
-        <g stroke="#0e0d0b" strokeWidth="2.2" fill="none">
+        <g stroke="#140c24" strokeWidth="2.2" fill="none">
           <path d={`M230 ${312 - wallH} l8 14 l-6 10 l10 16`} />
           <path d={`M410 ${312 - wallH + 6} l-9 12 l7 12 l-8 14`} />
         </g>
@@ -113,16 +113,16 @@ export function Castle({ level, stability, hpPct, doneByRole }: Props) {
       {/* gözcü feneri */}
       {doneByRole.SCOUT > 0 && (
         <g>
-          <circle cx="560" cy="270" r="30" fill="none" stroke="#84b4bc" strokeDasharray="2 5" opacity="0.7" />
+          <circle cx="560" cy="270" r="30" fill="none" stroke="#5cc8ff" strokeDasharray="2 5" opacity="0.7" />
           <line x1="560" y1="312" x2="560" y2="262" stroke={PAPER} strokeWidth="1.6" />
-          <circle cx="560" cy="256" r="6" fill="#84b4bc" />
+          <circle cx="560" cy="256" r="6" fill="#5cc8ff" />
         </g>
       )}
 
       {/* sis */}
       {foggy && (
         <g style={{ animation: "drift 9s ease-in-out infinite" }}>
-          <g filter="url(#fogblur)" fill="#9a917f">
+          <g filter="url(#fogblur)" fill="#a897c9">
             <ellipse cx="170" cy="292" rx="150" ry="24" opacity="0.38" />
             <ellipse cx="480" cy="276" rx="170" ry="28" opacity="0.34" />
             <ellipse cx="320" cy="316" rx="260" ry="20" opacity="0.4" />
